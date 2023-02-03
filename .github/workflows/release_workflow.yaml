@@ -26,7 +26,7 @@ jobs:
 
       - name: Get Latest Release Tag
         id: latest_release
-        uses: actions/github-script@1.0.0
+        uses: actions/github-script@0.9.0
         with:
           script: |
             const octokit = require("@octokit/rest")()
@@ -43,7 +43,7 @@ jobs:
             core.setOutput("latest_tag", latest_tag)
 
       - name: Update README
-        uses: actions/github-script@1.0.0
+        uses: actions/github-script@0.9.0
         with:
           script: |
             const octokit = require("@octokit/rest")()
