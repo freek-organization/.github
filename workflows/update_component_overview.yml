@@ -1,0 +1,28 @@
+name: update_component_overview
+# this is a workflow to update the readme file with the latest component overview
+# this workflow is triggered by a release from other repositories
+on:
+  workflow_call:
+    inputs:
+      component_name:
+        description: 'Name of the component'
+        required: true
+        type: string
+      release_version:
+        description: 'Version of the release'
+        required: true
+        type: string
+
+jobs:
+  reusable_workflow_job:
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+    # update the readme file
+    - name: Update readme file
+      uses: ./.github/actions/update_component_overview
+      with:
+        component_name: ${{ inputs.component_name }}
+        release_version: ${{ inputs.release_version }}
+
+

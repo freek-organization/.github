@@ -1,1 +1,76 @@
+name: Update README
 
+on:
+  repository_dispatch:
+    types: [update_readme]
+
+jobs:
+  update_readme:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v2
+      with:
+        ref: main
+        repository: organization/.github
+        path: .github
+
+    - name: Get Latest Release Tag
+      id: latest_release
+      uses: actions/github-script@0.9.0
+      with:
+        script: |
+          const octokit = require("@octokit/rest")()
+          const repo_name = "${{ github.event.client_payload.repo_name }}"
+
+          const { data: releases } = await octokit.repos.listReleases({
+            owner: "organization",
+            repo: repo_name
+          })
+
+          const latest_release = releases[0]
+          const latest_tag = latest_release.tag_name
+
+          core.setOutput("latest_tag", latest_tag)
+
+    - name: Update README
+      uses: actions/github-script@0.9.0
+      with:
+        script: |
+          const octokit = require("@octokit/rest")()
+          const latest_tag = "${{ steps.latest_release.outputs.latest_tag }}"
+          const repo_name = "${{ github.event.client_payload.repo_name }}"
+
+          const { data: file } = await octokit.repos.getContents({
+            owner: "organization",
+            repo: ".github",
+            path: "README.md"
+          })
+
+          let file_content = Buffer.from(file.content, 'base64').toString()
+          
+          // Update the table in README.md with the latest tag of the repository
+          file_content = file_content.replace(`repo_name: tag`, `repo_name: ${latest_tag}`)
+
+          const commit_message = "Update README with latest release tag"
+          const committer = {
+            name: "Github Actions",
+            email: "actions@github.com"
+          }
+          
+          const { data: { sha } } = await octokit.repos.getContents({
+            owner: "organization",
+            repo: ".github",
+            path: "README.md"
+          })
+          
+          await octokit.repos.updateFile({
+            owner: "organization",
+            repo: ".github",
+            path: "README.md",
+            message: commit_message,
+            content: Buffer.from(file_content).toString('base64'),
+            sha: sha,
+            committer: committer
+          })
