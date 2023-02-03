@@ -13,7 +13,7 @@ jobs:
       uses: actions/checkout@v2
       with:
         ref: main
-        repository: organization/.github
+        repository: freek-organization/.github
         path: .github
 
     - name: Get Latest Release Tag
@@ -25,7 +25,7 @@ jobs:
           const repo_name = "${{ github.event.client_payload.repo_name }}"
 
           const { data: releases } = await octokit.repos.listReleases({
-            owner: "organization",
+            owner: "freek-organization",
             repo: repo_name
           })
 
@@ -43,7 +43,7 @@ jobs:
           const repo_name = "${{ github.event.client_payload.repo_name }}"
 
           const { data: file } = await octokit.repos.getContents({
-            owner: "organization",
+            owner: "freek-organization",
             repo: ".github",
             path: "README.md"
           })
@@ -60,13 +60,13 @@ jobs:
           }
           
           const { data: { sha } } = await octokit.repos.getContents({
-            owner: "organization",
+            owner: "freek-organization",
             repo: ".github",
             path: "README.md"
           })
           
           await octokit.repos.updateFile({
-            owner: "organization",
+            owner: "freek-organization",
             repo: ".github",
             path: "README.md",
             message: commit_message,
